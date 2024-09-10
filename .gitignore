@@ -1,0 +1,7 @@
+__pycahe__
+.idea/
+cache/
+data/
+runs/
+weights/
+*.pyc
