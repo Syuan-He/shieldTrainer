@@ -134,7 +134,7 @@ class MyTrainer:
 
         print(f"macroaverage: {total_macroaverage}")
 
-    def save(self, path: str = 'weights/myModel.pth'):
+    def save(self, path: str = 'myModel.pth'):
         torch.save(self.model.state_dict(), path)
 
     def load(self, path: str):
