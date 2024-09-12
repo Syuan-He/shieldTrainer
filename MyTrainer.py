@@ -23,7 +23,7 @@ class MyDataset(Dataset):
     def __getitem__(self, idx):
         text = self.df.iloc[idx]['texts']
         label = torch.tensor(
-            [[self.df.iloc[idx][i[0]], self.df.iloc[idx][i[1]]] for i in [
+            [[self.df.iloc[idx][i[1]], self.df.iloc[idx][i[0]]] for i in [
                     ("No Dangerous Content Positive", "No Dangerous Content Negative"),
                     ("No Harassment Positive", "No Harassment Negative"),
                     ("No Hate Speech Content Positive", "No Hate Speech Content Negative"),
