@@ -14,14 +14,15 @@ DEV_CONF = DevConf(device='cuda' if torch.cuda.is_available() else 'cpu')
 
 class MyDataset(Dataset):
     def __init__(self, df: pd.DataFrame, tokenizer):
-        self.df = df.dropna()
+        condition = df['is_run']==True
+        self.df = df.dropna()[condition]
         self.tokenizer = tokenizer
 
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
-        text = self.df.iloc[idx]['texts']
+        text = self.df.iloc[idx]['text']
         label = torch.tensor(
             [[self.df.iloc[idx][i[1]], self.df.iloc[idx][i[0]]] for i in [
                     ("No Dangerous Content Positive", "No Dangerous Content Negative"),
@@ -38,10 +39,10 @@ class MyTrainer:
         train_data = pd.read_csv(train_data_path)
         self.n_class = class_count
         self.model = CombinationModel(class_count, attention_config, devConf=DEV_CONF)
-        tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-multilingual-cased", cache_dir='./cache/tokenizer')
+        self.tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-multilingual-cased", cache_dir='./cache/tokenizer')
         
         # dataset
-        dataset = MyDataset(train_data, tokenizer)
+        dataset = MyDataset(train_data, self.tokenizer)
 
         datasize = len(dataset)
         splitIndex = int(datasize * 0.2)
@@ -51,7 +52,7 @@ class MyTrainer:
 
         def collect_fn(batch):
             texts, labels = zip(*batch)
-            return tokenizer(texts, return_tensors='pt', padding='max_length', truncation=True, max_length=512).to(device=DEV_CONF.device), torch.stack(labels).to(DEV_CONF.device)
+            return self.tokenizer(texts, return_tensors='pt', padding='max_length', truncation=True, max_length=512).to(device=DEV_CONF.device), torch.stack(labels).to(DEV_CONF.device)
         self.train_loader = DataLoader(
             train_dataset, collate_fn=collect_fn, batch_size=8, shuffle=True,
             )
