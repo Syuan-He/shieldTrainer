@@ -47,6 +47,7 @@ class CombinationModel(nn.Module):
 
         output = self.activate(self.outProj(output))
         output = output.view(-1, self.nClass, 2)
+        output = nn.functional.softmax(output, dim=2)
         
         if returnAttnWeight:
             return output, attnWeig
