@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import torch
 from torch import nn
@@ -33,9 +32,9 @@ class MyDataset(Dataset):
         return text, label
 
 class MyTrainer:
-    def __init__(self, class_count: int, attention_config: AttnBlocksConf=AttnBlocksConf(768, 12, nKVHead=6)) -> None:
+    def __init__(self, class_count: int, attention_config: AttnBlocksConf=AttnBlocksConf(768, 12, nKVHead=6), new_arch=False) -> None:
         self.class_count = class_count
-        self.model = CombinationModel(class_count, attention_config, devConf=DEV_CONF)
+        self.model = CombinationModel(class_count, attention_config, devConf=DEV_CONF, new_arch=new_arch)
         self.tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-multilingual-cased", cache_dir='./cache/tokenizer')
         self.train_loader = None
         self.test_loader = None
@@ -66,7 +65,7 @@ class MyTrainer:
 
     # Train
     def train(self, epochs: int = 1, lr: float=1e-5, log:bool = False):
-        loss_fn = nn.BCELoss()
+        loss_fn = nn.KLDivLoss(reduction="mean")
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=lr)
 
         def train_fn(model, train_loader, loss_fn, optimizer, epochs, log):
@@ -78,6 +77,7 @@ class MyTrainer:
                 for i, (data, label) in enumerate(train_loader):
                     optimizer.zero_grad()
                     output = model(**data, NoGradBert=False)
+                    output = torch.log(output)
                     loss = loss_fn(output, label.float())
                     loss.backward()
                     optimizer.step()
