@@ -1,4 +1,4 @@
-import tqdm
+from tqdm import tqdm
 import pandas as pd
 import torch
 from torch import nn
@@ -75,7 +75,7 @@ class MyTrainer:
             if log:
                 writer = SummaryWriter()
             for epoch in range(epochs):
-                for i, (data, label) in tqdm(enumerate(train_loader)):
+                for i, (data, label) in enumerate(train_loader):
                     optimizer.zero_grad()
                     output = model(**data)
                     output = torch.log(output)

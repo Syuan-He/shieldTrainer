@@ -1,5 +1,5 @@
 from torch import nn, Tensor
-from transformers import BertModel, BatchEncoding
+from transformers import BertModel
 
 from utils.DevConf import DevConf
 
@@ -18,15 +18,12 @@ class BERTMultiLabelClassifier(nn.Module):
     def forward(self,
             input_ids: Tensor,
             attention_mask: Tensor,
-            returnAttnWeight: bool=False
+            token_type_ids: Tensor=None
         )->tuple[Tensor, Tensor] | Tensor:
 
-        output = self._getBertOutput(input_ids=input_ids, attention_mask=attention_mask).pooler_output
+        output = self.Bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids).pooler_output
         output = self.outProj(output)
         output = output.view(-1, self.nClass, 2)
         output = nn.functional.softmax(output, dim=2)
 
         return output
-    
-    def _getBertOutput(self, input_ids: Tensor, attention_mask: Tensor)->BatchEncoding:
-        return self.Bert(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states= self.decoder.IsNeedHiddenState)
