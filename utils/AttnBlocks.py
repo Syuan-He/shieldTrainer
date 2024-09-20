@@ -16,11 +16,6 @@ class AttnBlocks(nn.Module):
         super(AttnBlocks, self).__init__()
 
         self._mha = nn.ModuleList([MHABlock(
-            # AttnConf(
-            #     hidDim = conf.hidDim,
-            #     nHead = conf.nHead,
-            #     nKVHead = conf.nKVHead
-            # ),
             attnConf = conf,
             batch_first=True,
             device=devConf.device,

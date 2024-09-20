@@ -9,12 +9,7 @@ from utils.AttnBlocksConf import AttnBlocksConf
 class Attention(nn.Module):
     def __init__(
             self,
-            # hidDim: int,
-            # nHead: int,
-            # headDim: int = None,
-            # nKVHead: int = None,
             attnConf: AttnBlocksConf = None,
-            # batch_first: bool = True,
             device: str = 'cpu',
             dtype: torch.dtype = torch.float32
     ) -> None:
@@ -22,8 +17,6 @@ class Attention(nn.Module):
 
         self._SetVariables(attnConf)
 
-        # self.batch_first = batch_first
-        
         self.qProj = nn.Linear(
             self.hidDim,
             self.nHead * self.headDim,
@@ -58,8 +51,6 @@ class Attention(nn.Module):
         key_padding_mask: Optional[Tensor] = None,
         need_weights: bool = True,
         attn_mask: Optional[Tensor] = None,
-        # average_attn_weights: bool = True,
-        # is_causal : bool = False
     ) -> tuple[Tensor, Optional[Tensor]]:
         assert query.dim() == 3
         assert kv.dim() == 3

@@ -8,10 +8,6 @@ from utils.AttnBlocksConf import AttnBlocksConf
 
 class MHABlock(nn.Module):
     def __init__(self, 
-            # hidDim: int,
-            # nHead: int,
-            # headDim: int = None,
-            # nKVHead: int = 1,
             attnConf: AttnBlocksConf = None,
             dropout: float = 0.1,
             intermediateDim: int = None,
@@ -21,22 +17,9 @@ class MHABlock(nn.Module):
     )->None:
         super(MHABlock, self).__init__()
 
-        # self._mha = nn.MultiheadAttention(
-        #     hidDim,
-        #     nHead,
-        #     dropout=dropout,
-        #     batch_first=batch_first,
-        #     device=device,
-        #     dtype=dtype,
-        # )
-
         hidDim = attnConf.hidDim
         
         self._mha = Attention(
-            # hidDim,
-            # nHead,
-            # headDim=headDim,
-            # nKVHead=nKVHead,
             attnConf=attnConf,
             device=device,
             dtype=dtype
@@ -64,25 +47,9 @@ class MHABlock(nn.Module):
             average_attn_weights: bool = True,
             is_causal : bool = False
         )->Tensor:
-        # batch = query.size(0)
 
         residual = query
 
-        # q: Tensor = self.qProj(query)
-        # key = self.kProj(key)
-        # value = self.vProj(value)
-        
-        # query, attnWeight = self._mha.forward(
-        #         query=query,
-        #         key=key,
-        #         value=value,
-        #         key_padding_mask=key_padding_mask,
-        #         need_weights=need_weights,
-        #         attn_mask=attn_mask,
-        #         average_attn_weights=average_attn_weights,
-        #         is_causal=is_causal
-        #     )
-        
         query, attnWeight = self._mha(
             query=query,
             kv=key,

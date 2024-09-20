@@ -1,6 +1,3 @@
-from typing import Optional
-
-import torch
 from torch import nn, Tensor
 from transformers import DistilBertModel, BatchEncoding
 
@@ -32,23 +29,11 @@ class CombinationModel(nn.Module):
     def forward(self,
             input_ids: Tensor,
             attention_mask: Tensor,
-            NoGradBert: bool=True,
-            NoGradDecoder: bool=False,
             returnAttnWeight: bool=False
         )->tuple[Tensor, Tensor] | Tensor:
 
-        if NoGradBert:
-            with torch.no_grad():
-                output = self._getBertOutput(input_ids=input_ids, attention_mask=attention_mask)
-        else:
-            output = self._getBertOutput(input_ids=input_ids, attention_mask=attention_mask)
-
-        if NoGradDecoder:
-            with torch.no_grad():
-                output, attnWeig = self.decoder(output, returnAttnWeight=True)
-        else:
-            output, attnWeig = self.decoder(output, returnAttnWeight=True)
-
+        output = self._getBertOutput(input_ids=input_ids, attention_mask=attention_mask)
+        output, attnWeig = self.decoder(output, returnAttnWeight=True)
         output = self.outProj(output)
         output = output.view(-1, self.nClass, 2)
         output = nn.functional.softmax(output, dim=2)

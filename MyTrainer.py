@@ -1,3 +1,4 @@
+import tqdm
 import pandas as pd
 import torch
 from torch import nn
@@ -74,9 +75,9 @@ class MyTrainer:
             if log:
                 writer = SummaryWriter()
             for epoch in range(epochs):
-                for i, (data, label) in enumerate(train_loader):
+                for i, (data, label) in tqdm(enumerate(train_loader)):
                     optimizer.zero_grad()
-                    output = model(**data, NoGradBert=False)
+                    output = model(**data)
                     output = torch.log(output)
                     loss = loss_fn(output, label.float())
                     loss.backward()
@@ -144,9 +145,8 @@ class MyTrainer:
         self.model.eval()
         with torch.no_grad():
             data = self.tokenizer(text, return_tensors='pt', padding='max_length', truncation=True, max_length=512).to(device=DEV_CONF.device)
-            output = self.model(**data, NoGradBert=False).squeeze()
+            output = self.model(**data).squeeze()
             return output[:, 1].tolist()
-            # return torch.argmax(output, dim=1).tolist()
 
     def save(self, path: str = 'myModel.pth'):
         torch.save(self.model.state_dict(), path)
